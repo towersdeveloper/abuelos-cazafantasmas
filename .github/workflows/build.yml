@@ -1,0 +1,103 @@
+name: Compilar AAB y APK
+
+# En cada cambio a main deja en Releases:
+#   abuelos-cazafantasmas-vX.Y.Z.aab  -> para subir a Play Store
+#   abuelos-cazafantasmas-vX.Y.Z.apk  -> para instalar directo en los celus
+# Necesita dos secretos del repo: ANDROID_KEYSTORE_BASE64 y ANDROID_KEYSTORE_PASSWORD.
+# Si faltan, compila solo un APK de prueba firmado con la llave de depuración.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Versión
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Instalar y sincronizar con Android
+        run: |
+          npm ci
+          npm run sync
+
+      - name: Preparar la firma
+        id: sign
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            {
+              echo "storeFile=$RUNNER_TEMP/release.jks"
+              echo "storePassword=$KS_PASS"
+              echo "keyAlias=abuelos"
+              echo "keyPassword=$KS_PASS"
+            } > android/keystore.properties
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Faltan los secretos ANDROID_KEYSTORE_BASE64 y ANDROID_KEYSTORE_PASSWORD: se compila solo el APK de prueba, sin AAB."
+          fi
+
+      - name: Compilar
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          if [ "${{ steps.sign.outputs.signed }}" = "true" ]; then
+            ./gradlew bundleRelease assembleRelease --no-daemon
+          else
+            ./gradlew assembleDebug --no-daemon
+          fi
+
+      - name: Ponerles nombre
+        env:
+          V: ${{ steps.v.outputs.version }}
+        run: |
+          mkdir -p dist
+          B=android/app/build/outputs
+          if [ "${{ steps.sign.outputs.signed }}" = "true" ]; then
+            cp "$B/bundle/release/abuelos-cazafantasmas-v$V-release.aab" "dist/abuelos-cazafantasmas-v$V.aab"
+            cp "$B/apk/release/abuelos-cazafantasmas-v$V-release.apk" "dist/abuelos-cazafantasmas-v$V.apk"
+            "$ANDROID_HOME"/build-tools/*/apksigner verify "dist/abuelos-cazafantasmas-v$V.apk" 2>/dev/null || ls "$ANDROID_HOME/build-tools"
+          else
+            cp "$B/apk/debug/abuelos-cazafantasmas-v$V-debug.apk" "dist/abuelos-cazafantasmas-v$V.apk"
+          fi
+          ls -la dist
+
+      - name: Borrar la llave del servidor
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks" android/keystore.properties
+
+      - name: Publicar en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.v.outputs.version }}
+          name: Abuelos Cazafantasmas v${{ steps.v.outputs.version }}
+          prerelease: ${{ steps.sign.outputs.signed != 'true' }}
+          body: |
+            ${{ steps.sign.outputs.signed == 'true' && '- **.aab**: el que se sube a Play Store.' || '- Falta cargar la llave de firma en el repo: por ahora solo hay APK de prueba, sin AAB.' }}
+            - **.apk**: para instalar directo en el celu. Chrome va a avisar que puede ser peligroso: es normal en cualquier APK que no viene de Play Store. Tocá "Descargar de todas formas".
+          files: dist/*

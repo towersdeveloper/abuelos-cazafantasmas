@@ -50,9 +50,14 @@ Cada vez que se sube un cambio a `main`, GitHub publica `www/` como página web.
 
 Queda en `https://towersdeveloper.github.io/abuelos-cazafantasmas/`. Abrilo desde el navegador de cada celu para probar el multijugador sin instalar nada.
 
-## APK de prueba (sin Android Studio)
+## AAB y APK automáticos (sin Android Studio)
 
-Cada vez que se sube un cambio a `main`, GitHub compila un APK y lo publica en **Releases** como `abuelos-cazafantasmas-vX.Y.Z.apk`. Para instalarlo en un celu: abrí la release desde el celu, descargá el APK y, cuando Chrome avise que puede ser peligroso, tocá **Descargar de todas formas**. Después Android pide permiso para instalar apps de origen desconocido. Pasa con cualquier APK que no viene de Play Store. Este APK está firmado con la llave de prueba: no sirve para subir a Play Store.
+Cada vez que se sube un cambio a `main`, GitHub compila y publica en **Releases**:
+
+- `abuelos-cazafantasmas-vX.Y.Z.aab`: el que se sube a Play Store.
+- `abuelos-cazafantasmas-vX.Y.Z.apk`: para instalar directo en los celus. Chrome avisa que puede ser peligroso (pasa con cualquier APK que no viene de Play Store): tocá **Descargar de todas formas** y después permití instalar apps de origen desconocido.
+
+Para que salgan firmados hacen falta dos secretos en **Settings → Secrets and variables → Actions**: `ANDROID_KEYSTORE_BASE64` (la llave convertida a base64) y `ANDROID_KEYSTORE_PASSWORD`. Sin ellos, solo se compila un APK de prueba.
 
 ## Cambiar el juego
 
