@@ -1,0 +1,6 @@
+
+# Firma de release (nunca subir)
+android/keystore.properties
+*.jks
+*.keystore
+node_modules/
