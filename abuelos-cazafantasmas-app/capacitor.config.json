@@ -1,0 +1,14 @@
+{
+  "appId": "com.abuelos.cazafantasmas",
+  "appName": "Abuelos Cazafantasmas",
+  "webDir": "www",
+  "backgroundColor": "#130b1c",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "StatusBar": { "overlaysWebView": true, "style": "DARK", "backgroundColor": "#00000000" }
+  }
+}
