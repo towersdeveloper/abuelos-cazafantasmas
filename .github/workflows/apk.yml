@@ -1,0 +1,63 @@
+name: Compilar APK de prueba
+
+# Compila un APK instalable (firmado con la llave de prueba, no sirve para Play Store)
+# y lo publica en Releases como abuelos-cazafantasmas-vX.Y.Z.apk.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Versión
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Instalar y sincronizar con Android
+        run: |
+          npm ci
+          npm run sync
+
+      - name: Compilar
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Ponerle nombre
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/abuelos-cazafantasmas-v${{ steps.v.outputs.version }}-debug.apk \
+             dist/abuelos-cazafantasmas-v${{ steps.v.outputs.version }}.apk
+
+      - name: Publicar en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.v.outputs.version }}
+          name: Abuelos Cazafantasmas v${{ steps.v.outputs.version }} (prueba)
+          prerelease: true
+          body: |
+            APK de prueba para instalar directo en el celu (no es el de Play Store).
+            Chrome va a avisar que el archivo puede ser peligroso: es normal en cualquier APK que no viene de Play Store.
+          files: dist/abuelos-cazafantasmas-v${{ steps.v.outputs.version }}.apk

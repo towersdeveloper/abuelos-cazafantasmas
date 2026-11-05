@@ -22,9 +22,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Versión
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: www
+          name: abuelos-cazafantasmas-v${{ steps.v.outputs.version }}-web
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: abuelos-cazafantasmas-v${{ steps.v.outputs.version }}-web

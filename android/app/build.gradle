@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Versión de la app: sale de "version" en package.json (por ejemplo 1.0.0).
+// Para sacar una versión nueva, cambiá solo ese número: el versionCode se calcula solo
+// (1.0.0 -> 10000, 1.2.3 -> 10203) y siempre sube si la versión sube.
+def appVersion = new groovy.json.JsonSlurper().parse(rootProject.file('../package.json')).version
+def vParts = (appVersion.tokenize('.') + ['0', '0']).take(3).collect { it.toInteger() }
+def appVersionCode = vParts[0] * 10000 + vParts[1] * 100 + vParts[2]
+
 // Firma de release: los datos van en android/keystore.properties (no se sube a git).
 def keystorePropsFile = rootProject.file("keystore.properties")
 def keystoreProps = new Properties()
@@ -12,8 +19,8 @@ android {
         applicationId "com.abuelos.cazafantasmas"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -38,6 +45,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+// Nombre de los archivos que genera: abuelos-cazafantasmas-v1.0.0-debug.apk / -release.aab
+base {
+    archivesName = "abuelos-cazafantasmas-v${appVersion}"
 }
 
 repositories {

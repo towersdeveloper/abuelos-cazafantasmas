@@ -50,6 +50,10 @@ Cada vez que se sube un cambio a `main`, GitHub publica `www/` como página web.
 
 Queda en `https://towersdeveloper.github.io/abuelos-cazafantasmas/`. Abrilo desde el navegador de cada celu para probar el multijugador sin instalar nada.
 
+## APK de prueba (sin Android Studio)
+
+Cada vez que se sube un cambio a `main`, GitHub compila un APK y lo publica en **Releases** como `abuelos-cazafantasmas-vX.Y.Z.apk`. Para instalarlo en un celu: abrí la release desde el celu, descargá el APK y, cuando Chrome avise que puede ser peligroso, tocá **Descargar de todas formas**. Después Android pide permiso para instalar apps de origen desconocido. Pasa con cualquier APK que no viene de Play Store. Este APK está firmado con la llave de prueba: no sirve para subir a Play Store.
+
 ## Cambiar el juego
 
 1. Editá `www/index.html`.
@@ -75,7 +79,7 @@ Copiá `android/keystore.properties.example` como `android/keystore.properties` 
 
 ### 3. Subir la versión y generar el paquete
 
-En `android/app/build.gradle`, aumentá `versionCode` en cada subida (1, 2, 3…) y ajustá `versionName` ("1.0", "1.1"…).
+La versión se cambia **solo** en `package.json` (`"version": "1.0.0"`). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000, 1.0.1 → 10001…) y el nombre de los archivos. Antes de cada subida a Play Store, subí ese número.
 
 ```bash
 npm run sync
@@ -83,7 +87,7 @@ cd android
 ./gradlew bundleRelease
 ```
 
-El archivo queda en `android/app/build/outputs/bundle/release/app-release.aab`.
+El archivo queda en `android/app/build/outputs/bundle/release/abuelos-cazafantasmas-v1.0.0-release.aab` (con la versión que corresponda).
 También podés hacerlo desde Android Studio: **Build → Generate Signed App Bundle**.
 
 ### 4. En Play Console
