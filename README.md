@@ -55,6 +55,7 @@ Queda en `https://towersdeveloper.github.io/abuelos-cazafantasmas/`. Abrilo desd
 Cada vez que se sube un cambio a `main`, GitHub compila y publica en **Releases**:
 
 - `abuelos-cazafantasmas-vX.Y.Z.aab`: el que se sube a Play Store.
+- `abuelos-cazafantasmas-vX.Y.Z.zip`: todo junto (el `.aab`, el `.apk`, el código, los sprites y sonidos exportados del juego, íconos, fuentes y `docs/PROMPT_PARA_CLAUDE.md`). Lo arma `scripts/armar-zip.sh`.
 - `abuelos-cazafantasmas-vX.Y.Z.apk`: para instalar directo en los celus. Chrome avisa que puede ser peligroso (pasa con cualquier APK que no viene de Play Store): tocá **Descargar de todas formas** y después permití instalar apps de origen desconocido.
 
 Para que salgan firmados hacen falta dos secretos en **Settings → Secrets and variables → Actions**: `ANDROID_KEYSTORE_BASE64` (la llave convertida a base64) y `ANDROID_KEYSTORE_PASSWORD`. Sin ellos, solo se compila un APK de prueba.

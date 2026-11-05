@@ -3,6 +3,7 @@ name: Compilar AAB y APK
 # En cada cambio a main deja en Releases:
 #   abuelos-cazafantasmas-vX.Y.Z.aab  -> para subir a Play Store
 #   abuelos-cazafantasmas-vX.Y.Z.apk  -> para instalar directo en los celus
+#   abuelos-cazafantasmas-vX.Y.Z.zip  -> todo junto: app, código, assets y prompt
 # Necesita dos secretos del repo: ANDROID_KEYSTORE_BASE64 y ANDROID_KEYSTORE_PASSWORD.
 # Si faltan, compila solo un APK de prueba firmado con la llave de depuración.
 on:
@@ -87,6 +88,21 @@ jobs:
           fi
           ls -la dist
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Exportar sprites y sonidos del juego
+        env:
+          V: ${{ steps.v.outputs.version }}
+        run: |
+          pip install playwright==1.48.0 pillow
+          python -m playwright install chromium
+          python scripts/exportar_assets.py www/index.html "dist/abuelos-cazafantasmas-v$V/assets"
+
+      - name: Armar el zip con todo
+        run: ./scripts/armar-zip.sh
+
       - name: Borrar la llave del servidor
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks" android/keystore.properties
@@ -99,5 +115,9 @@ jobs:
           prerelease: ${{ steps.sign.outputs.signed != 'true' }}
           body: |
             ${{ steps.sign.outputs.signed == 'true' && '- **.aab**: el que se sube a Play Store.' || '- Falta cargar la llave de firma en el repo: por ahora solo hay APK de prueba, sin AAB.' }}
+            - **.zip**: todo junto (app, código, sprites, sonidos, íconos y el prompt para Claude).
             - **.apk**: para instalar directo en el celu. Chrome va a avisar que puede ser peligroso: es normal en cualquier APK que no viene de Play Store. Tocá "Descargar de todas formas".
-          files: dist/*
+          files: |
+            dist/*.aab
+            dist/*.apk
+            dist/*.zip

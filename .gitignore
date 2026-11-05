@@ -4,3 +4,6 @@ android/keystore.properties
 *.jks
 *.keystore
 node_modules/
+
+# Salidas de compilación
+dist/
