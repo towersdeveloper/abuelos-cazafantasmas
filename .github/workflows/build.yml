@@ -103,6 +103,14 @@ jobs:
       - name: Armar el zip con todo
         run: ./scripts/armar-zip.sh
 
+      # Aparece abajo de todo en la página de la compilación (Artifacts) y se baja como .zip
+      - name: Dejar el zip en la compilación
+        uses: actions/upload-artifact@v4
+        with:
+          name: abuelos-cazafantasmas-v${{ steps.v.outputs.version }}
+          path: dist/abuelos-cazafantasmas-v${{ steps.v.outputs.version }}/
+          compression-level: 6
+
       - name: Borrar la llave del servidor
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks" android/keystore.properties
