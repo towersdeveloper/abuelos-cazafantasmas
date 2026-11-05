@@ -5,13 +5,23 @@ Tres jubilados (Don Tito con la aspiradora, Doña Pocha con la trampa en el anda
 
 - **ID de la app:** `com.abuelos.cazafantasmas` (cambialo **antes** de la primera subida: después no se puede).
 - **Target SDK:** 36 · **Min SDK:** 24 · Orientación vertical.
-- Anda sin internet: las fuentes están adentro de `www/fonts`.
+- **Multijugador de hasta 3 celus**, uno por abuelo. Para jugar solo no hace falta internet.
+
+## Multijugador
+
+- Uno toca **Crear partida** y le aparece un **código de 4 letras**. Los demás tocan **Unirse a partida** y lo escriben.
+- En la sala, cada uno toca el abuelo que quiere. Los abuelos sin jugador los maneja el host (cambiando con las caras de la derecha, como en el modo solo).
+- El host elige la casa y entra; los demás ven el mismo briefing y entran con él.
+- **Internet hace falta solo para encontrarse** por el código (usa el servidor gratuito de PeerJS). Después, el juego va directo de celu a celu por WebRTC.
+- Cómo funciona por dentro: el celu del host simula todo con `step()`. Los demás mandan su joystick unas 30 veces por segundo y reciben el estado unas 20 veces por segundo, junto con los eventos (sonidos, carteles). Si alguien se desconecta, su abuelo pasa al host; si se va el host, los demás vuelven al menú.
+- Si el host minimiza la app, la partida se pausa para todos.
 
 ## Estructura
 
 ```
 www/index.html          el juego completo (lo único que editás para cambiar el juego)
-www/fonts/              fuentes locales (las copia `npm run fonts`)
+www/fonts/              fuentes locales (las copia `npm run vendor`)
+www/vendor/             PeerJS para el multijugador (lo copia `npm run vendor`)
 android/                proyecto Android generado por Capacitor (se sube a git)
 assets/                 ícono y splash de origen (1024 y 2732 px)
 store/                  imágenes para la ficha de Play Store (ícono 512 y gráfico 1024x500)
@@ -28,11 +38,17 @@ PRIVACIDAD.md           plantilla de política de privacidad
 
 ```bash
 npm install
-npm run sync      # copia las fuentes y sincroniza www/ con android/
+npm run sync      # copia fuentes y PeerJS, y sincroniza www/ con android/
 npm run open      # abre el proyecto en Android Studio
 ```
 
 En Android Studio, con el celu conectado por USB (depuración USB activada), tocá **Run**.
+
+## Probar en los celus sin compilar (GitHub Pages)
+
+Cada vez que se sube un cambio a `main`, GitHub publica `www/` como página web. Para activarlo una sola vez: en el repo, **Settings → Pages → Source: GitHub Actions**.
+
+Queda en `https://towersdeveloper.github.io/abuelos-cazafantasmas/`. Abrilo desde el navegador de cada celu para probar el multijugador sin instalar nada.
 
 ## Cambiar el juego
 
@@ -75,7 +91,7 @@ También podés hacerlo desde Android Studio: **Build → Generate Signed App Bu
 - **Crear app:** nombre "Abuelos Cazafantasmas", juego, gratis.
 - **Ficha de la tienda:** ícono `store/icon-512.png`, gráfico destacado `store/feature-graphic-1024x500.png` y al menos 2 capturas de pantalla del juego (sacalas desde el celu).
 - **Política de privacidad:** publicá `PRIVACIDAD.md` en una URL pública (por ejemplo GitHub Pages o Google Sites) y pegá el link.
-- **Seguridad de los datos:** el juego no recolecta ni comparte datos y no usa internet.
+- **Seguridad de los datos:** el juego no recolecta ni guarda datos personales. Para el multijugador usa internet solo para conectar los celus entre sí (no se envían datos personales).
 - **Clasificación de contenido:** completá el cuestionario (hay sustos de dibujo animado, sin violencia real).
 - **Público objetivo:** si marcás menores de 13, Google aplica reglas extra de la política de Familias. Decidilo antes de completar.
 - **Pruebas:** las cuentas personales de desarrollador nuevas tienen que hacer una prueba cerrada con al menos 12 testers durante 14 días antes de poder publicar en producción. Si tu cuenta es más vieja, puede que no te lo pida.

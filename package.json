@@ -2,18 +2,19 @@
   "name": "abuelos-cazafantasmas",
   "version": "1.0.0",
   "private": true,
-  "description": "Abuelos Cazafantasmas: tres jubilados cazan fantasmas en una casa embrujada.",
+  "description": "Abuelos Cazafantasmas: tres jubilados cazan fantasmas en una casa embrujada. Multijugador de hasta 3 celus.",
   "scripts": {
-    "fonts": "node scripts/copy-fonts.mjs",
+    "vendor": "node scripts/copy-vendor.mjs",
     "assets": "npx @capacitor/assets generate --android --iconBackgroundColor '#2b1b3d' --splashBackgroundColor '#130b1c'",
-    "sync": "npm run fonts && npx cap sync android",
+    "sync": "npm run vendor && npx cap sync android",
     "open": "npx cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",
-    "@capacitor/status-bar": "^8.0.4"
+    "@capacitor/status-bar": "^8.0.4",
+    "peerjs": "^1.5.5"
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
