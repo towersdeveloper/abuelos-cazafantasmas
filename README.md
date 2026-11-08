@@ -1,19 +1,19 @@
 # Abuelos Cazafantasmas
 
 Juego para Android hecho en un solo HTML (`www/index.html`) y empaquetado con Capacitor 8.
-Tres jubilados (Don Tito con la aspiradora, Doña Pocha con la trampa en el andador y Cacho con la linterna UV) atrapan fantasmas, juntan pruebas y escapan de una casa embrujada.
+Tres jubilados (Don Tito con la aspiradora, Doña Pocha con la trampa en el andador y Cacho con la linterna UV) recorren un camino de 12 casas embrujadas con trabajos distintos: limpiar, recuperar cosas robadas, sacar fotos, arreglar la luz, ganarle al reloj y enfrentar a un jefe. Se juega en horizontal: el dedo izquierdo camina y el derecho apunta.
 
 - **ID de la app:** `com.abuelos.cazafantasmas` (cambialo **antes** de la primera subida: después no se puede).
-- **Target SDK:** 36 · **Min SDK:** 24 · Orientación vertical.
+- **Target SDK:** 36 · **Min SDK:** 24 · Orientación horizontal.
 - **Multijugador de hasta 3 celus**, uno por abuelo. Para jugar solo no hace falta internet.
 
 ## Multijugador
 
 - Uno toca **Crear partida** y le aparece un **código de 4 letras**. Los demás tocan **Unirse a partida** y lo escriben.
-- En la sala, cada uno toca el abuelo que quiere. Los abuelos sin jugador los maneja el host (cambiando con las caras de la derecha, como en el modo solo).
-- El host elige la casa y entra; los demás ven el mismo briefing y entran con él.
+- En la sala, cada uno toca el abuelo que quiere. Los abuelos sin jugador los maneja el host (cambiando con las caras de arriba, como en el modo solo).
+- El host elige la casa en el camino (los demás lo ven) y entra; los demás ven el mismo briefing y entran con él. Las estrellas del camino se guardan en el celu del host.
 - **Internet hace falta solo para encontrarse** por el código (usa el servidor gratuito de PeerJS). Después, el juego va directo de celu a celu por WebRTC.
-- Cómo funciona por dentro: el celu del host simula todo con `step()`. Los demás mandan su joystick unas 30 veces por segundo y reciben el estado unas 20 veces por segundo, junto con los eventos (sonidos, carteles). Si alguien se desconecta, su abuelo pasa al host; si se va el host, los demás vuelven al menú.
+- Cómo funciona por dentro: el celu del host simula todo con `step()`. Los demás mandan sus dos sticks unas 30 veces por segundo y reciben el estado unas 20 veces por segundo, junto con los eventos (sonidos, carteles). Si alguien se desconecta, su abuelo pasa al host; si se va el host, los demás vuelven al menú.
 - Si el host minimiza la app, la partida se pausa para todos.
 
 ## Estructura
@@ -85,7 +85,7 @@ Copiá `android/keystore.properties.example` como `android/keystore.properties` 
 
 ### 3. Subir la versión y generar el paquete
 
-La versión se cambia **solo** en `package.json` (`"version": "1.0.0"`). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000, 1.0.1 → 10001…) y el nombre de los archivos. Antes de cada subida a Play Store, subí ese número.
+La versión se cambia **solo** en `package.json` (`"version": "1.1.0"`). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000, 1.0.1 → 10001…) y el nombre de los archivos. Antes de cada subida a Play Store, subí ese número.
 
 ```bash
 npm run sync

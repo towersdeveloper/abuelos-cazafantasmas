@@ -33,11 +33,15 @@ async()=>{
    if(p.tool==='trap'){G.trap.carried=false;pose(p,null);shot(`personajes/${n}_sin-trampa.png`,220,240,()=>drawPerson(p));G.trap.carried=true}
  }
  G.players.forEach((p,i)=>{p.x=-999;p.y=-999});
- const mk=(type,o)=>Object.assign({type,x:100,y:100,vx:0,vy:0,r:type==='gordo'?40:28,hp:1,max:1,weak:false,beamT:0,rev:0,sucked:0,seed:42+type.length,alive:true,say:null},o||{});
- for(const t of['sabana','gordo','polter']){
-   shot(`fantasmas/${t}.png`,200,200,()=>drawGhost(mk(t,{rev:1})));
-   shot(`fantasmas/${t}_cansado.png`,200,200,()=>drawGhost(mk(t,{rev:1,weak:true})));
+ const mk=(type,o)=>Object.assign({type,x:100,y:100,vx:0,vy:0,r:type==='jefe'?50:type==='gordo'?40:28,ph:0,hp:1,max:1,weak:false,beamT:0,rev:0,sucked:0,seed:42+type.length,alive:true,say:null},o||{});
+ for(const t of['sabana','gordo','polter','jefe']){const z=t==='jefe'?280:200,m=mk(t,{rev:1,x:z/2,y:z/2+(t==='jefe'?20:0)});
+   shot(`fantasmas/${t}.png`,z,z,()=>drawGhost(m));
+   shot(`fantasmas/${t}_cansado.png`,z,z,()=>drawGhost(Object.assign({},m,{weak:true})));
  }
+ shot('fantasmas/sabana_sin-uv.png',200,200,()=>drawGhost(mk('sabana',{rev:0})));
+ for(const it of Object.keys(ITEMS))shot(`objetos/robado_${it}.png`,90,80,()=>drawItem({k:'item',it,x:45,y:42,done:false,car:-1,seed:17}));
+ shot('objetos/tablero-de-luz.png',110,100,()=>drawFuse({k:'fuse',x:55,y:56,done:false,prog:0,seed:19}));
+ shot('objetos/tablero-de-luz_arreglado.png',110,100,()=>drawFuse({k:'fuse',x:55,y:56,done:true,prog:0,seed:19}));
  const F=['silla','sillon','mesa','lampara','cajon','piano'];const R={silla:16,sillon:27,mesa:32,lampara:12,cajon:22,piano:40};
  for(const k of F)shot(`objetos/mueble_${k}.png`,120,110,()=>drawFurn({kind:k,x:58,y:52,r:R[k],ang:0,seed:7,hue:330}));
  for(const k of['doll','ecto','radio']){const names={doll:'prueba_muneca',ecto:'prueba_ectoplasma',radio:'prueba_radio'};
@@ -66,7 +70,8 @@ async()=>{
   ['desmayo',()=>SFX.faint()],['despertar',()=>SFX.revive()],['trampa-clac',()=>SFX.trap()],['fantasma-absorbido',()=>SFX.suck()],['trueno',()=>SFX.thunder()],['flash-foto',()=>SFX.flash()],
   ['mueble-choque',()=>SFX.crash()],['baba-resbalon',()=>SFX.squish()],['prueba-conseguida',()=>SFX.pick()],['progreso-tic',()=>SFX.tick()],['paso',()=>SFX.step()],['crujido',()=>SFX.creak()],
   ['puerta',()=>SFX.door()],['derrumbe',()=>SFX.rumble()],['victoria',()=>SFX.win()],['derrota',()=>SFX.lose()],['radio-estatica',()=>SFX.radio()],['risa-fantasma',()=>SFX.ghostLaugh()],
-  ['aspiradora-loop',()=>{beamSound(true)}]];
+  ['aspiradora-loop',()=>{beamSound(true)}],
+  ...[['don-tito',0],['dona-pocha',1],['cacho',2]].flatMap(([n,i])=>['scream','faint','grunt','effort','bonk','hup','happy','revive','wow','mumble'].map(k=>[`voz-${n}-${k}`,()=>vox(i,k)]))];
  const out={};
  for(const [n,f] of list){ac=new OfflineAudioContext(1,44100*(n==='aspiradora-loop'?2:3),44100);nb=null;beamNode=null;for(const k in lastS)delete lastS[k];f();const buf=await ac.startRendering();out[n]=enc(buf)}
  ac=null;nb=null;beamNode=null;return out}
