@@ -286,41 +286,50 @@ function beamSound(on){
 }
 
 /* ------------------------------------------------ voces de los abuelos
-   Nada de palabras: una fuente (diente de sierra) pasa por dos filtros que imitan las
-   vocales (formantes) y se deslizan entre ellas. Sale un balbuceo tipo muñeco de goma.
-   Cada abuelo tiene su tono: Tito grave y ronco, Pocha aguda y temblorosa, Cacho nasal. */
-const VOX=[{f:96,vib:5,vd:.025,form:.95,v:1.15},{f:212,vib:7.5,vd:.06,form:1.16,v:.9},{f:142,vib:6,vd:.03,form:1.1,v:1}];
-const VOW={a:[780,1220],e:[470,1850],i:[300,2280],o:[460,840],u:[320,700]};
+   Murmullos blanditos tipo muñeco de goma: boca casi cerrada ("mm", "uh", "oh"), una onda
+   suave que pasa por un filtro que la apaga y dos formantes de vocal. Poco volumen, poco
+   salto de tono y pocas veces: cada abuelo habla como mucho cada par de segundos.
+   Tito grave, Pocha más aguda y temblorosa, Cacho en el medio y nasal. */
+const VOX=[{f:92,vib:4.5,vd:.015,form:.92,v:1.1},{f:178,vib:6.5,vd:.035,form:1.1,v:.9},{f:128,vib:5,vd:.02,form:1.02,v:1}];
+const VOW={m:[260,900],u:[320,760],o:[440,860],a:[650,1100],e:[450,1600]};
 const VPAT={// [vocal desde, vocal hasta, duración, tono desde, tono hasta, volumen]
-  scream:[['a','a',.42,2,2.8,1],['a','u',.42,2.7,1.5,1]],
-  faint:[['o','o',.25,1.3,1.2,.9],['o','u',.9,1.2,.5,.9]],
-  grunt:[['u','o',.17,1,.78,.8]],
-  effort:[['e','a',.2,1.05,1.4,.85],['a','u',.32,1.4,1.05,.85]],
-  bonk:[['o','u',.15,1.4,.7,1]],
-  hup:[['u','a',.16,1,1.75,1]],
-  happy:[['i','a',.12,1.35,1.7,.85],['i','o',.12,1.45,1.9,.85],['o','i',.24,1.6,2.15,.85]],
-  revive:[['e','e',.28,.9,1.55,.8]],
-  wow:[['u','o',.2,1.4,1.95,.9],['o','a',.32,1.95,1.15,.9]],
+  scream:[['u','o',.22,1.15,1.5,1],['o','a',.38,1.5,1.2,1]],          // "¡uoaah!"
+  faint:[['o','m',.7,1.05,.62,.8]],                                     // "hmmmm..."
+  grunt:[['m','m',.16,1,.9,.75]],                                        // "hm"
+  effort:[['m','u',.32,.95,1.08,.7]],                                    // "nnngh"
+  bonk:[['u','m',.14,1.15,.85,.85]],                                     // "uf"
+  hup:[['m','o',.13,1,1.3,.85]],                                         // "hop"
+  happy:[['m','e',.1,1.1,1.25,.7],['m','e',.12,1.15,1.32,.7]],           // "jeje"
+  revive:[['m','m',.22,.9,1.2,.7]],                                      // "¿hm?"
+  wow:[['u','o',.36,1.05,1.3,.8]],                                       // "ooh"
 };
+// probabilidad de que suene cada tipo (para que no hablen todo el tiempo)
+const VPROB={scream:1,faint:1,revive:.8,hup:.7,bonk:.5,grunt:.3,effort:.45,happy:.5,wow:.35,mumble:1};
+const vLast=[-9,-9,-9];let vAny=-9;
 function vox(id,kind){
   if(!ac)return;const V=VOX[id];if(!V)return;
-  once('v'+id,kind==='mumble'||kind==='grunt'?320:160,()=>{
-    let pat=VPAT[kind];
-    if(kind==='mumble'){const vs='aeiou';pat=[];let pm=rnd(.95,1.15);for(let k=ri(3,6);k>0;k--){const p2=pm*rnd(.82,1.22);pat.push([vs[ri(0,4)],vs[ri(0,4)],rnd(.07,.15),pm,p2,.75]);pm=p2}}
-    if(!pat)return;
-    let t=ac.currentTime+.01;
-    for(const [a,b,d,p1,p2,v] of pat){syl(V,t,d,a,b,p1,p2,v*V.v);t+=d+(kind==='mumble'?.025:.045)}
-  });
+  const now=ac.currentTime,big=kind==='scream'||kind==='faint';
+  if(!big&&(now-vLast[id]<2.6||now-vAny<.9))return;
+  if(Math.random()>(VPROB[kind]??.5))return;
+  vLast[id]=now;vAny=now;
+  let pat=VPAT[kind];
+  if(kind==='mumble'){const vs='muomoe';pat=[];let pm=rnd(.95,1.08);for(let k=ri(2,4);k>0;k--){const p2=pm*rnd(.9,1.1);pat.push([vs[ri(0,5)],vs[ri(0,5)],rnd(.1,.18),pm,p2,.6]);pm=p2}}
+  if(!pat)return;
+  let t=now+.01;
+  for(const [a,b,d,p1,p2,v] of pat){syl(V,t,d,a,b,p1,p2,v*V.v);t+=d+.05}
 }
 function syl(V,t,d,a,b,p1,p2,v){
-  const o=ac.createOscillator(),l=ac.createOscillator(),lg=ac.createGain(),g=ac.createGain(),f1=ac.createBiquadFilter(),f2=ac.createBiquadFilter(),g2=ac.createGain();
-  o.type='sawtooth';o.frequency.setValueAtTime(V.f*p1,t);o.frequency.exponentialRampToValueAtTime(V.f*p2,t+d);
+  const o=ac.createOscillator(),l=ac.createOscillator(),lg=ac.createGain(),g=ac.createGain(),lp=ac.createBiquadFilter(),f1=ac.createBiquadFilter(),f2=ac.createBiquadFilter(),g1=ac.createGain(),g2=ac.createGain();
+  o.type='triangle';o.frequency.setValueAtTime(V.f*p1,t);o.frequency.exponentialRampToValueAtTime(V.f*p2,t+d);
   l.frequency.value=V.vib;lg.gain.value=V.f*p1*V.vd;l.connect(lg).connect(o.frequency);
-  const A=VOW[a],B=VOW[b];f1.type=f2.type='bandpass';f1.Q.value=6;f2.Q.value=8;
+  lp.type='lowpass';lp.frequency.value=1300*V.form;lp.Q.value=.5;
+  const A=VOW[a],B=VOW[b];f1.type=f2.type='bandpass';f1.Q.value=3.5;f2.Q.value=5;
   f1.frequency.setValueAtTime(A[0]*V.form,t);f1.frequency.linearRampToValueAtTime(B[0]*V.form,t+d);
   f2.frequency.setValueAtTime(A[1]*V.form,t);f2.frequency.linearRampToValueAtTime(B[1]*V.form,t+d);
-  const vol=.32*v;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+Math.min(.03,d*.3));g.gain.setValueAtTime(vol,t+d*.7);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  g2.gain.value=.6;o.connect(f1).connect(g);o.connect(f2).connect(g2).connect(g);g.connect(ac.destination);
+  const vol=.2*v,at=Math.min(.05,d*.35);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+at);g.gain.setValueAtTime(vol,t+d*.6);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  g1.gain.value=.5;g2.gain.value=.35;// un poco de la onda directa le da cuerpo de "hmm"
+  o.connect(lp);lp.connect(f1).connect(g);lp.connect(f2).connect(g2).connect(g);lp.connect(g1).connect(g);g.connect(ac.destination);
   o.start(t);l.start(t);o.stop(t+d+.05);l.stop(t+d+.05);
 }
 
@@ -447,7 +456,7 @@ function makeHouse(L,lvl){
   const start={x:front.x+90,y:HH-150};
   const G={W,H,HH,walls,leaves,spawn,front,furn,evidence,ghosts,slime:[],plaster:[],parts:[],texts:[],events:[],trail:[],
     trap:{x:start.x+40,y:start.y,carried:true,clack:0,fly:0,fx:0,fy:0},house:L.name,why:L.why,level:lvl,mission:{type:L.type,boss:L.boss||''},
-    t:0,captured:0,photos:0,limit:L.time||0,escape:-1,flash:0,flashT:rnd(8,14),idleT:rnd(6,10),shake:0,running:true,won:false,over:false,active:0,follow:true,hint:null,hintsSeen:{},scares:0,
+    t:0,captured:0,photos:0,limit:L.time||0,escape:-1,flash:0,flashT:rnd(8,14),idleT:rnd(14,22),shake:0,running:true,won:false,over:false,active:0,follow:true,hint:null,hintsSeen:{},scares:0,
     inputs:[mkIn()],block:[]};
   G.players=SQUAD.map((s,k)=>newPlayer(k,{x:start.x+(k-1)*70,y:start.y+(k===1?30:0)},s));
   G.trail=[{x:G.players[0].x,y:G.players[0].y}];
@@ -490,7 +499,7 @@ function step(G,dt){
   }
   inp.thr=inp.tap=false;for(const r of NET.rin){r.thr=r.tap=false}
   // charla suelta: de vez en cuando un abuelo murmura algo
-  G.idleT-=dt;if(G.idleT<=0){G.idleT=rnd(7,13);const c=awake(G).filter(p=>p.panic<=0&&p.sayT<=0);if(c.length){const p=pick(c);psay(p,pick(IDLE[p.id]),2.4);ev(G,'v',{i:p.id,v:'mumble'})}}
+  G.idleT-=dt;if(G.idleT<=0){G.idleT=rnd(25,45);const c=awake(G).filter(p=>p.panic<=0&&p.sayT<=0);if(c.length){const p=pick(c);psay(p,pick(IDLE[p.id]),2.4);ev(G,'v',{i:p.id,v:'mumble'})}}
   if(G.limit>0&&G.escape<0){G.limit-=dt;if(G.limit<=0){G.limit=0;end(G,false,'Llegó la inmobiliaria con los compradores y encontró a tres jubilados persiguiendo una sábana. No se vendió.');return}}
   const lt=G.trail[0];if(!lt||hyp(act.x-lt.x,act.y-lt.y)>12){G.trail.unshift({x:act.x,y:act.y});if(G.trail.length>240)G.trail.pop()}
   stepFurniture(G,dt);
@@ -603,7 +612,7 @@ function beam(G,p,dt){
   g.beamT=.15;
   if(!g.weak){
     g.hp-=dt;
-    p.effT=(p.effT||0)-dt;if(p.effT<=0){p.effT=rnd(1,1.7);ev(G,'v',{i:p.id,v:'effort'})}
+    p.effT=(p.effT||0)-dt;if(p.effT<=0){p.effT=rnd(3.5,6);ev(G,'v',{i:p.id,v:'effort'})}
     // forcejeo: el fantasma tironea y arrastra al abuelo por la casa
     const yank=rnd(160,520)*(g.type==='gordo'?1.4:1);
     p.vx+=dx/d*yank*dt*2+rnd(-1,1)*400*dt;p.vy+=dy/d*yank*dt*2+rnd(-1,1)*400*dt;

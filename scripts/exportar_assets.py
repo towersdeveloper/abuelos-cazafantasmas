@@ -71,7 +71,7 @@ async()=>{
   ['mueble-choque',()=>SFX.crash()],['baba-resbalon',()=>SFX.squish()],['prueba-conseguida',()=>SFX.pick()],['progreso-tic',()=>SFX.tick()],['paso',()=>SFX.step()],['crujido',()=>SFX.creak()],
   ['puerta',()=>SFX.door()],['derrumbe',()=>SFX.rumble()],['victoria',()=>SFX.win()],['derrota',()=>SFX.lose()],['radio-estatica',()=>SFX.radio()],['risa-fantasma',()=>SFX.ghostLaugh()],
   ['aspiradora-loop',()=>{beamSound(true)}],
-  ...[['don-tito',0],['dona-pocha',1],['cacho',2]].flatMap(([n,i])=>['scream','faint','grunt','effort','bonk','hup','happy','revive','wow','mumble'].map(k=>[`voz-${n}-${k}`,()=>vox(i,k)]))];
+  ...[['don-tito',0],['dona-pocha',1],['cacho',2]].flatMap(([n,i])=>['scream','faint','grunt','effort','bonk','hup','happy','revive','wow','mumble'].map(k=>[`voz-${n}-${k}`,()=>{vLast.fill(-99);vAny=-99;const r=Math.random;Math.random=()=>0;vox(i,k);Math.random=r}]))];
  const out={};
  for(const [n,f] of list){ac=new OfflineAudioContext(1,44100*(n==='aspiradora-loop'?2:3),44100);nb=null;beamNode=null;for(const k in lastS)delete lastS[k];f();const buf=await ac.startRendering();out[n]=enc(buf)}
  ac=null;nb=null;beamNode=null;return out}

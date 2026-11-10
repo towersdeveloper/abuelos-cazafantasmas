@@ -122,7 +122,7 @@ Un mapa horizontal con 12 casas unidas por un camino (`LEVELS` en el código). C
 
 ## Sonido
 
-Todo **sintetizado con WebAudio**, sin archivos de audio. **Los abuelos tienen voz**: balbuceos sin palabras tipo muñeco de goma (una onda diente de sierra que pasa por dos filtros que imitan vocales y se deslizan), Tito grave y ronco, Pocha aguda y temblorosa, Cacho nasal. Gritan cuando se asustan, se quejan al chocar, hacen fuerza al aspirar, "¡jup!" al tirar la trampa, festejan al atrapar y murmuran solos. Además: zumbido de la aspiradora en loop, "buuu" con vibrato de los fantasmas, gritos con un tono distinto para cada abuelo, clac de la trampa, flash de la cámara, trueno, choques de muebles, chapoteo en la baba, estática de radio, risa de fantasma, derrumbe, y música corta de victoria y derrota.
+Todo **sintetizado con WebAudio**, sin archivos de audio. **Los abuelos tienen voz**: murmullos tranquilos sin palabras, tipo Gang Beasts ("hm", "uf", "uoah", "jeje"), con la boca casi cerrada: una onda suave apagada por un filtro y dos formantes de vocal, con poco volumen y poco salto de tono. Tito grave, Pocha más aguda, Cacho nasal. Hablan poco: cada abuelo como mucho cada 2,6 segundos, y muchas reacciones suenan solo a veces. La charla suelta sale cada 25 a 45 segundos. El grito del susto y el desmayo suenan siempre. Además: zumbido de la aspiradora en loop, "buuu" con vibrato de los fantasmas, gritos con un tono distinto para cada abuelo, clac de la trampa, flash de la cámara, trueno, choques de muebles, chapoteo en la baba, estática de radio, risa de fantasma, derrumbe, y música corta de victoria y derrota.
 
 ## Controles
 
@@ -149,7 +149,7 @@ Menú (Crear partida / Unirse a partida / Cómo se juega) → Sala (código y el
 
 - El juego es **un solo archivo HTML** (`www/index.html`) con CSS y JS adentro. Fuentes en `www/fonts/` y PeerJS en `www/vendor/` (los copia `npm run vendor`).
 - Se empaqueta con **Capacitor 8** para Android: ID `com.abuelos.cazafantasmas`, target SDK 36, solo horizontal (`sensorLandscape`). En el navegador del celu, si está parado, pide girarlo. El botón atrás de Android hace lo que corresponde según la pantalla. El sonido se pausa si salís de la app.
-- **Versión:** sale solo de `"version"` en `package.json` (hoy 1.1.0). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000) y el nombre de los archivos: `abuelos-cazafantasmas-vX.Y.Z`.
+- **Versión:** sale solo de `"version"` en `package.json` (hoy 1.1.1). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000) y el nombre de los archivos: `abuelos-cazafantasmas-vX.Y.Z`.
 - **GitHub Actions:**
   - *Compilar AAB y APK*: en cada push a `main`, compila el `.aab` (para Play Store) y el `.apk` firmados con la llave de subida (secretos `ANDROID_KEYSTORE_BASE64` y `ANDROID_KEYSTORE_PASSWORD`, alias `abuelos`) y los publica en Releases.
   - *Publicar en GitHub Pages*: publica `www/` en `towersdeveloper.github.io/abuelos-cazafantasmas` para jugar desde el navegador.

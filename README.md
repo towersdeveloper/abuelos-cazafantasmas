@@ -85,7 +85,7 @@ Copiá `android/keystore.properties.example` como `android/keystore.properties` 
 
 ### 3. Subir la versión y generar el paquete
 
-La versión se cambia **solo** en `package.json` (`"version": "1.1.0"`). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000, 1.0.1 → 10001…) y el nombre de los archivos. Antes de cada subida a Play Store, subí ese número.
+La versión se cambia **solo** en `package.json` (`"version": "1.1.1"`). De ahí salen el `versionName`, el `versionCode` (1.0.0 → 10000, 1.0.1 → 10001…) y el nombre de los archivos. Antes de cada subida a Play Store, subí ese número.
 
 ```bash
 npm run sync
